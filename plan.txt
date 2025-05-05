@@ -1,0 +1,108 @@
+🧠 PHASE 1: Understand the Project
+1. Read the Subject Thoroughly
+Focus on: Chapters III & IV (project instructions + mandatory part).
+
+Goal: Understand you’re writing a client/server app communicating via UNIX signals (no sockets!).
+
+2. Learn These Key Concepts
+kill(pid, SIGUSR1/SIGUSR2) – sends signals.
+
+signal() / sigaction() – handle incoming signals.
+
+Binary and ASCII – convert characters to bits.
+
+pause() – wait for signal.
+
+getpid() – get process ID.
+
+usleep() – pause for short periods.
+
+🏗️ PHASE 2: Setup the Project Structure
+3. Create Basic File Structure
+minitalk/
+├── client.c
+├── server.c
+├── Makefile
+├── libft/ (optional, if you use it)
+├── utils.c (optional for helper functions)
+├── utils.h (headers for shared functions)
+4. Makefile Setup
+Compile both client and server.
+
+Required rules: all, clean, fclean, re, bonus.
+
+⚙️ PHASE 3: Build It Step by Step
+5. Start with the Server
+Print your PID with getpid().
+
+Set up signal handling using sigaction().
+
+When you receive a signal (SIGUSR1/SIGUSR2), store the bit.
+
+Convert bits into characters, and print when 8 bits received.
+
+6. Then Code the Client
+Get server PID and string as arguments.
+
+For each char:
+
+Send 8 signals (one for each bit: SIGUSR1 for 1, SIGUSR2 for 0).
+
+Use kill() to send to server.
+
+Wait a bit (usleep(100)) to avoid lost signals.
+
+7. End-of-String Handling
+Send null char ('\0') to signal end of message.
+
+🧪 PHASE 4: Testing & Fixing
+8. Test Basic Message Passing
+Compile and run server, note PID.
+
+Run client <PID> "Hello" – should appear on server.
+
+9. Handle Errors
+Check for invalid PIDs or wrong arguments.
+
+Gracefully handle malloc failures if used.
+
+10. Stress Test
+Send large strings.
+
+Send multiple messages one after another.
+
+Try from multiple clients.
+
+🌟 PHASE 5: Bonus (Optional)
+11. Acknowledgement Signal
+After server gets a message, send a signal back.
+
+Client waits for it before continuing or exiting.
+
+12. Unicode Support
+Use multibyte encoding (e.g., UTF-8) and handle variable-length chars.
+
+📚 Additional Resources
+Learn these as needed:
+
+man 2 kill
+
+man 2 sigaction
+
+Bitwise operations (>>, &, etc.)
+
+ASCII table
+
+✅ Final Checklist Before Submission
+ Norm OK (no errors, no leaks).
+
+ Client and server run without crashing.
+
+ Message sending works quickly (<1s for 100 chars).
+
+ Handles null strings and multiple clients.
+
+ Makefile works correctly.
+
+ Bonus in _bonus.c/h files if done.
+
