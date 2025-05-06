@@ -12,5 +12,12 @@ typedef struct s_server
 	char  curr_char;
 }	t_server;
 
+void	ft_putnbr_fd(int n, int fd);
+int		ft_atoi(const char *nptr);
+
 
 #endif
+
+//    write(1, "Server PID: ", 12);
+// ft_putnbr_fd(getpid(), 1);
+// write(1, "\n", 1);
