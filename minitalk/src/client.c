@@ -43,7 +43,7 @@ void	send_char(pid_t server_pid, char c)
 	    	kill(server_pid, SIGUSR1);
             printf("SIGUSR1 sent\n");
         }
-	    usleep(1000);
+	    usleep(2500);
         bit--;
     }
 }
