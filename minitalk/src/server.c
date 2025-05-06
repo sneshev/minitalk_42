@@ -22,27 +22,13 @@ void	ft_putnbr_fd(int n, int fd)
 	}
 }
 
-void set_bit(t_server *server, int sig)
+char set_bit( char curr_char, int bit_count, int sig)
 {
     if (sig == SIGUSR2)
-    {
-    if (server->bit_count == 0)
-        server->curr_char |= (1 << 7);
-    if (server->bit_count == 1)
-        server->curr_char |= (1 << 6);
-    if (server->bit_count == 2)
-        server->curr_char |= (1 << 5);
-    if (server->bit_count == 3)
-        server->curr_char |= (1 << 4);
-    if (server->bit_count == 4)
-        server->curr_char |= (1 << 3);
-    if (server->bit_count == 5)
-        server->curr_char |= (1 << 2);
-    if (server->bit_count == 6)
-        server->curr_char |= (1 << 1);
-    if (server->bit_count == 7)
-        server->curr_char |= (1 << 0);
-    }
+        curr_char |= 0x80 >> bit_count;
+    if(bit_count == 7 )
+        write(1, &curr_char, 1);
+    return curr_char;
 }
 
 void handle_signal(int sig, siginfo_t *info, void *context)
@@ -51,11 +37,11 @@ void handle_signal(int sig, siginfo_t *info, void *context)
     (void)info;
     (void)context;
 
-    set_bit(&server, sig);
+    server.curr_char = set_bit(server.curr_char, server.bit_count, sig);
     server.bit_count += 1;
     if (server.bit_count == 8)
     {
-        write(1, &server.curr_char, 1);
+        //write(1, &server.curr_char, 1);
         server.bit_count = 0;
         server.curr_char = 0;
     }
