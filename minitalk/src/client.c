@@ -48,7 +48,6 @@ void	send_char(pid_t server_pid, char c)
     }
 }
 
-
 int main(int argc, char *argv[])
 {
     pid_t   server_pid;
