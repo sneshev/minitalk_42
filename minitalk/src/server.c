@@ -2,7 +2,7 @@
 
 void set_bit(t_server *server, int sig)
 {
-    if (sig == SIGUSR1)
+    if (sig == SIGUSR2)
     {
     if (server->bit_count == 0)
         server->curr_char |= (1 << 7);
@@ -40,7 +40,6 @@ void handle_signal(int sig)
     if (server.bit_count == 8)
     {
         write(1, (const void *)&server.curr_char, 1); 
-        write(1, "\n", 1); 
         server.bit_count = 0;
         server.curr_char = 0;
     }
