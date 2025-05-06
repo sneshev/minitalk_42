@@ -36,12 +36,12 @@ void	send_char(pid_t server_pid, char c)
 	    if ((c >> bit) & 1)
 	    {
             kill(server_pid, SIGUSR2);
-            printf("SIGUSR2 sent\n");
+            // printf("SIGUSR2 sent\n");
         }	
 	    else
         {
 	    	kill(server_pid, SIGUSR1);
-            printf("SIGUSR1 sent\n");
+            // printf("SIGUSR1 sent\n");
         }
 	    usleep(2500);
         bit--;
