@@ -57,6 +57,7 @@ void send_char(pid_t server_pid, unsigned char chr)
 int main(int argc, char **argv)
 {
     char *message;
+	int i;
 
 	if (argc != 3)
 		return (1);
@@ -65,11 +66,14 @@ int main(int argc, char **argv)
 	
     signal(SIGUSR1, handle_ack);
 
+	i = 0;
     message = argv[2];
-    while (*message)
+    while (message[i])
 	{
-        send_char(server_pid, *message);
-        message++;
+        send_char(server_pid, message[i]);
+        i++;
+		if (i % 33 == 0)
+			usleep(100000);
     }	
 	return (0);
 }
