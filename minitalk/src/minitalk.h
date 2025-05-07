@@ -29,7 +29,3 @@ int		ft_atoi(const char *nptr);
 void	ft_putstr_fd(const char *str, int fd);
 
 #endif
-
-//    write(1, "Server PID: ", 12);
-// ft_putnbr_fd(getpid(), 1);
-// write(1, "\n", 1);
