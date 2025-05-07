@@ -16,8 +16,9 @@ static void	handle_signal(int sig, siginfo_t *info, void *context)
 		chr = 0;
 		bits = 0;
 	}
-	// Acknowledge bit received
-	kill(info->si_pid, SIGUSR1);
+	usleep(50);
+	if (kill(info->si_pid, SIGUSR1))
+		write(1, "ERROR", 5);
 }
 
 int main(void)
@@ -26,9 +27,14 @@ int main(void)
 
 	sa.sa_sigaction = handle_signal;
 	sa.sa_flags = SA_SIGINFO;
-	sigemptyset(&sa.sa_mask);
-	sigaction(SIGUSR1, &sa, NULL);
-	sigaction(SIGUSR2, &sa, NULL);
+	if (sigemptyset(&sa.sa_mask) == -1)
+	    perror("sigemptyset");
+
+	if (sigaction(SIGUSR1, &sa, NULL) == -1)
+	    perror("sigaction SIGUSR1");
+
+	if (sigaction(SIGUSR2, &sa, NULL) == -1)
+	    perror("sigaction SIGUSR2");
 	
 	printf("Server PID: %d\n", getpid());
 	while (1)

@@ -45,12 +45,19 @@ void send_char(pid_t server_pid, unsigned char chr)
         answer = 0;
         bit_value = chr >> place & 1;
 		if (bit_value == 1)
-            kill(server_pid, SIGUSR2);
+		{
+            if (kill(server_pid, SIGUSR2))
+				write(1, "ERROR", 5);;
+		}
         else
-            kill(server_pid, SIGUSR1);
+		{
+            if (kill(server_pid, SIGUSR1))
+				write(1, "ERROR", 5);;
+		}
         place--;
         while (!answer)
             pause();
+		usleep(50);
     }
 }
 
@@ -64,16 +71,24 @@ int main(int argc, char **argv)
 
 	pid_t server_pid = (pid_t)ft_atoi(argv[1]);
 	
-    signal(SIGUSR1, handle_ack);
+	struct sigaction sa;
+	sa.sa_handler = handle_ack;
+	sa.sa_flags = SA_RESTART;
+	if (sigemptyset(&sa.sa_mask) == -1)
+		perror("sigemptyset");
+	if (sigaction(SIGUSR1, &sa, NULL) == -1)
+		perror("sigaction");
+	
 
 	i = 0;
     message = argv[2];
-    while (message[i])
+    while (*message)
 	{
-        send_char(server_pid, message[i]);
+        send_char(server_pid, *message);
         i++;
-		if (i % 33 == 0)
-			usleep(100000);
+        message++;
+		// if (i % 101 == 0)
+		// 	usleep(99999);
     }	
 	return (0);
 }
