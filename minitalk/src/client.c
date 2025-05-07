@@ -27,60 +27,49 @@ int	ft_atoi(const char *nptr)
 	return (nbr * sign);
 }
 
-void take_answer(int sig)
+void handle_ack(int sig)
 {
-    (void)sig;
-    write(1, "ACK\n", 4); // optional debug
-    answer = 1;
+	(void)sig;
+	answer = 1;
 }
 
-void	send_char(pid_t server_pid, char c)
-{
-    int bit;
 
-    answer = 0;
-    bit = 7;
-    printf("char: %c\n", c);
-    while (bit >= 0)
+void send_char(pid_t server_pid, unsigned char chr)
+{
+    int place;
+    int bit_value;
+
+    place = 7;
+    while(place >= 0)
     {
-	    if ((c >> bit) & 1)
-	    {
+        answer = 0;
+        bit_value = chr >> place & 1;
+		if (bit_value == 1)
             kill(server_pid, SIGUSR2);
-            // printf("SIGUSR2 sent\n");
-        }	
-	    else
-        {
-	    	kill(server_pid, SIGUSR1);
-            // printf("SIGUSR1 sent\n");
-        }
-	    usleep(500);
-        bit--;
+        else
+            kill(server_pid, SIGUSR1);
+        place--;
+        while (!answer)
+            pause();
     }
-
-    while (!answer)
-        pause();
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-    pid_t   server_pid;
-    int     i;
-    struct sigaction sa;
+    char *message;
 
-    if (argc != 3)
-    {
-        return 0;
-    }
-    server_pid = (pid_t)ft_atoi(argv[1]);
-    sa.sa_handler = take_answer;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sigaction(SIGUSR1, &sa, NULL);
-    i = 0;
-    while (argv[2][i])
-    {
-        send_char(server_pid, argv[2][i]);
-        i++;
-    }
-    send_char(server_pid, '\0');
+	if (argc != 3)
+		return (1);
+
+	pid_t server_pid = (pid_t)ft_atoi(argv[1]);
+	
+    signal(SIGUSR1, handle_ack);
+
+    message = argv[2];
+    while (*message)
+	{
+        send_char(server_pid, *message);
+        message++;
+    }	
+	return (0);
 }
