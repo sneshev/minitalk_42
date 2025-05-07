@@ -1,5 +1,7 @@
 #include "minitalk.h"
 
+volatile sig_atomic_t answer = 0;
+
 int	ft_atoi(const char *nptr)
 {
 	int	sign;
@@ -25,10 +27,18 @@ int	ft_atoi(const char *nptr)
 	return (nbr * sign);
 }
 
+void take_answer(int sig)
+{
+    (void)sig;
+    write(1, "ACK\n", 4); // optional debug
+    answer = 1;
+}
+
 void	send_char(pid_t server_pid, char c)
 {
     int bit;
 
+    answer = 0;
     bit = 7;
     printf("char: %c\n", c);
     while (bit >= 0)
@@ -43,21 +53,29 @@ void	send_char(pid_t server_pid, char c)
 	    	kill(server_pid, SIGUSR1);
             // printf("SIGUSR1 sent\n");
         }
-	    usleep(600);
+	    usleep(500);
         bit--;
     }
+
+    while (!answer)
+        pause();
 }
 
 int main(int argc, char *argv[])
 {
     pid_t   server_pid;
     int     i;
+    struct sigaction sa;
 
     if (argc != 3)
     {
         return 0;
     }
     server_pid = (pid_t)ft_atoi(argv[1]);
+    sa.sa_handler = take_answer;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGUSR1, &sa, NULL);
     i = 0;
     while (argv[2][i])
     {

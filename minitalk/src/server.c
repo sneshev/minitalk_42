@@ -26,24 +26,26 @@ char set_bit( char curr_char, int bit_count, int sig)
 {
     if (sig == SIGUSR2)
         curr_char |= 0x80 >> bit_count;
-    if(bit_count == 7 )
-        write(1, &curr_char, 1);
+    // if(bit_count == 7 )
+    //     write(1, &curr_char, 1);
     return curr_char;
 }
 
 void handle_signal(int sig, siginfo_t *info, void *context)
 {
     static t_server server = {0, 0};
-    (void)info;
     (void)context;
 
     server.curr_char = set_bit(server.curr_char, server.bit_count, sig);
     server.bit_count += 1;
     if (server.bit_count == 8)
     {
-        //write(1, &server.curr_char, 1);
+        write(1, &server.curr_char, 1);
+        if (info && info->si_pid != 0)
+            kill(info->si_pid, SIGUSR1);
         server.bit_count = 0;
         server.curr_char = 0;
+
     }
 }
 
