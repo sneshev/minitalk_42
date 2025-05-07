@@ -14,6 +14,7 @@ typedef struct s_server
 
 void	ft_putnbr_fd(int n, int fd);
 int		ft_atoi(const char *nptr);
+void	ft_putstr_fd(const char *str, int fd);
 
 
 #endif

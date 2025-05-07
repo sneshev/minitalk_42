@@ -2,6 +2,15 @@
 
 volatile sig_atomic_t answer = 0;
 
+void	ft_putstr_fd(const char *str, int fd)
+{
+	while (str && *str)
+	{
+		write(fd, str, 1);
+		str++;
+	}
+}
+
 int	ft_atoi(const char *nptr)
 {
 	int	sign;
@@ -47,12 +56,12 @@ void send_char(pid_t server_pid, unsigned char chr)
 		if (bit_value == 1)
 		{
             if (kill(server_pid, SIGUSR2))
-				write(1, "ERROR", 5);;
+				ft_putstr_fd("ERROR: kill (client)", 1);
 		}
         else
 		{
             if (kill(server_pid, SIGUSR1))
-				write(1, "ERROR", 5);;
+				ft_putstr_fd("ERROR: kill (client)", 1);
 		}
         place--;
         while (!answer)
@@ -64,7 +73,6 @@ void send_char(pid_t server_pid, unsigned char chr)
 int main(int argc, char **argv)
 {
     char *message;
-	int i;
 
 	if (argc != 3)
 		return (1);
@@ -75,20 +83,16 @@ int main(int argc, char **argv)
 	sa.sa_handler = handle_ack;
 	sa.sa_flags = SA_RESTART;
 	if (sigemptyset(&sa.sa_mask) == -1)
-		perror("sigemptyset");
+		ft_putstr_fd("ERROR: segemptyset (client)", 1);
 	if (sigaction(SIGUSR1, &sa, NULL) == -1)
-		perror("sigaction");
+		ft_putstr_fd("ERROR: sigaction (client)", 1);
 	
 
-	i = 0;
     message = argv[2];
     while (*message)
 	{
         send_char(server_pid, *message);
-        i++;
         message++;
-		// if (i % 101 == 0)
-		// 	usleep(99999);
     }	
 	return (0);
 }

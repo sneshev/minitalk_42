@@ -1,5 +1,13 @@
 #include "minitalk.h"
 
+void	ft_putstr_fd(const char *str, int fd)
+{
+	while (str && *str)
+	{
+		write(fd, str, 1);
+		str++;
+	}
+}
 
 static void	handle_signal(int sig, siginfo_t *info, void *context)
 {
@@ -18,7 +26,7 @@ static void	handle_signal(int sig, siginfo_t *info, void *context)
 	}
 	usleep(50);
 	if (kill(info->si_pid, SIGUSR1))
-		write(1, "ERROR", 5);
+		ft_putstr_fd("ERROR: kill (server)", 1);
 }
 
 int main(void)
@@ -27,14 +35,15 @@ int main(void)
 
 	sa.sa_sigaction = handle_signal;
 	sa.sa_flags = SA_SIGINFO;
+	
 	if (sigemptyset(&sa.sa_mask) == -1)
-	    perror("sigemptyset");
+		ft_putstr_fd("ERROR: sigemptyset (server)", 1);
 
 	if (sigaction(SIGUSR1, &sa, NULL) == -1)
-	    perror("sigaction SIGUSR1");
+		ft_putstr_fd("ERROR: sigaction (server)", 1);
 
 	if (sigaction(SIGUSR2, &sa, NULL) == -1)
-	    perror("sigaction SIGUSR2");
+		ft_putstr_fd("ERROR: sigaction (server)", 1);
 	
 	printf("Server PID: %d\n", getpid());
 	while (1)
