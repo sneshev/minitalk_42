@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   client.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sneshev <sneshev@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/07 15:55:56 by sneshev           #+#    #+#             */
+/*   Updated: 2025/05/07 15:56:47 by sneshev          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minitalk.h"
 
-volatile sig_atomic_t answer = 0;
+volatile sig_atomic_t	g_answer = 0;
 
 void	ft_putstr_fd(const char *str, int fd)
 {
@@ -36,63 +48,59 @@ int	ft_atoi(const char *nptr)
 	return (nbr * sign);
 }
 
-void handle_ack(int sig)
+void	handle_ack(int sig)
 {
 	(void)sig;
-	answer = 1;
+	g_answer = 1;
 }
 
-
-void send_char(pid_t server_pid, unsigned char chr)
+void	send_char(pid_t server_pid, unsigned char chr)
 {
-    int place;
-    int bit_value;
+	int	place;
+	int	bit_value;
 
-    place = 7;
-    while(place >= 0)
-    {
-        answer = 0;
-        bit_value = chr >> place & 1;
+	place = 7;
+	while (place >= 0)
+	{
+		g_answer = 0;
+		bit_value = chr >> place & 1;
 		if (bit_value == 1)
 		{
-            if (kill(server_pid, SIGUSR2))
+			if (kill(server_pid, SIGUSR2))
 				ft_putstr_fd("ERROR: kill (client)", 1);
 		}
-        else
+		else
 		{
-            if (kill(server_pid, SIGUSR1))
+			if (kill(server_pid, SIGUSR1))
 				ft_putstr_fd("ERROR: kill (client)", 1);
 		}
-        place--;
-        while (!answer)
-            pause();
+		place--;
+		while (!g_answer)
+			pause();
 		usleep(50);
-    }
+	}
 }
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
-    char *message;
+	struct sigaction	sa;
+	char				*message;
+	pid_t				server_pid;
 
 	if (argc != 3)
 		return (1);
-
-	pid_t server_pid = (pid_t)ft_atoi(argv[1]);
-	
-	struct sigaction sa;
+	server_pid = (pid_t)ft_atoi(argv[1]);
 	sa.sa_handler = handle_ack;
 	sa.sa_flags = SA_RESTART;
 	if (sigemptyset(&sa.sa_mask) == -1)
 		ft_putstr_fd("ERROR: segemptyset (client)", 1);
 	if (sigaction(SIGUSR1, &sa, NULL) == -1)
 		ft_putstr_fd("ERROR: sigaction (client)", 1);
-	
-
-    message = argv[2];
-    while (*message)
+	message = argv[2];
+	while (*message)
 	{
-        send_char(server_pid, *message);
-        message++;
-    }	
+		send_char(server_pid, *message);
+		message++;
+	}
 	return (0);
 }
